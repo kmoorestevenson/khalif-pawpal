@@ -1,3 +1,91 @@
+from __future__ import annotations
+
+
+class Pet:
+    def __init__(self, name: str = "", age: int = 0, pet_type: str = ""):
+        self.name = name
+        self.age = age
+        self.pet_type = pet_type
+
+
+class Task:
+    def __init__(self, duration: int = 0, task_type: str = "", priority: int = 0, name: str = ""):
+        self.duration = duration
+        self.type = task_type
+        self.priority = priority
+        self.name = name
+
+
+class Person:
+    def __init__(
+        self,
+        name: str = "",
+        age: int = 0,
+        email: str = "",
+        pets: list[Pet] | None = None,
+        tasks: list[Task] | None = None,
+    ):
+        self.name = name
+        self.age = age
+        self.email = email
+        self.pets = pets if pets is not None else []
+        self.tasks = tasks if tasks is not None else []
+
+    def add_pet(self, pet: Pet) -> None:
+        self.pets.append(pet)
+
+    def remove_pet(self, pet: Pet) -> bool:
+        if pet in self.pets:
+            self.pets.remove(pet)
+            return True
+        return False
+
+    def add_task(self, duration: int, task_type: str, priority: int, name: str) -> bool:
+        if any(task.name == name for task in self.tasks):
+            return False
+
+        self.tasks.append(Task(duration=duration, task_type=task_type, priority=priority, name=name))
+        return True
+
+    def AddTask(self, duration: int, type: str, priority: int, name: str) -> bool:
+        return self.add_task(duration, type, priority, name)
+
+    def remove_task(self, name: str) -> bool:
+        for task in self.tasks:
+            if task.name == name:
+                self.tasks.remove(task)
+                return True
+        return False
+
+    def RemoveTask(self, name: str) -> bool:
+        return self.remove_task(name)
+
+    def edit_task(self, name: str, duration: int, priority: int) -> bool:
+        for task in self.tasks:
+            if task.name == name:
+                task.duration = duration
+                task.priority = priority
+                return True
+        return False
+
+    def EditTask(self, name: str, duration: int, priority: int) -> bool:
+        return self.edit_task(name, duration, priority)
+
+    def generate_schedule(self, duration: int) -> list[Task]:
+        selected_tasks: list[Task] = []
+        remaining_time = duration
+
+        for task in sorted(self.tasks, key=lambda item: item.priority, reverse=True):
+            if task.duration <= remaining_time:
+                selected_tasks.append(task)
+                remaining_time -= task.duration
+
+        return selected_tasks
+
+    def GenerateSchedule(self, duration: int):
+        return self.generate_schedule(duration)
+
+
 import streamlit as st
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
