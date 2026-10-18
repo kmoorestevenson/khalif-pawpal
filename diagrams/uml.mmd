@@ -4,13 +4,12 @@ classDiagram
     -age: int
     -email: string
     -pets: List~Pet~
-    -tasks: List~Task~
     +addPet(Pet pet) void
     +removePet(Pet pet) void
-    +AddTask(int duration, string type, int priority, string name) bool
-    +RemoveTask(string name) bool
-    +EditTask(string name, int duration, int priority) bool
-    +GenerateSchedule(int duration)
+    +AddTask(string pet_name, int duration, string type, int priority, string name) bool
+    +RemoveTask(string pet_name, string name) bool
+    +EditTask(string pet_name, string name, int duration, int priority) bool
+    +GenerateSchedule(int duration, string pet_name)
   }
 
   class Pet {

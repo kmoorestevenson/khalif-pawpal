@@ -24,13 +24,11 @@ class Person:
         age: int = 0,
         email: str = "",
         pets: list[Pet] | None = None,
-        tasks: list[Task] | None = None,
     ):
         self.name = name
         self.age = age
         self.email = email
         self.pets = pets if pets is not None else []
-        self.tasks = tasks if tasks is not None else []
 
     def add_pet(self, pet: Pet) -> None:
         self.pets.append(pet)
@@ -59,46 +57,54 @@ class Person:
             return False
 
         pet.tasks.append(Task(duration=duration, task_type=task_type, priority=priority, name=name))
-        self.tasks.append(Task(duration=duration, task_type=task_type, priority=priority, name=name))
         return True
 
     def AddTask(self, duration: int, type: str, priority: int, name: str, pet_name: str) -> bool:
         return self.add_task(duration, type, priority, name, pet_name)
 
-    def remove_task(self, name: str) -> bool:
-        for task in self.tasks:
+    def remove_task(self, pet_name: str, name: str) -> bool:
+        pet = self.find_pet(pet_name)
+        if not pet:
+            return False
+        for task in pet.tasks:
             if task.name == name:
-                self.tasks.remove(task)
+                pet.tasks.remove(task)
                 return True
         return False
 
-    def RemoveTask(self, name: str) -> bool:
-        return self.remove_task(name)
+    def RemoveTask(self, pet_name: str, name: str) -> bool:
+        return self.remove_task(pet_name, name)
 
-    def edit_task(self, name: str, duration: int, priority: int) -> bool:
-        for task in self.tasks:
+    def edit_task(self, pet_name: str, name: str, duration: int, priority: int) -> bool:
+        pet = self.find_pet(pet_name)
+        if not pet:
+            return False
+        for task in pet.tasks:
             if task.name == name:
                 task.duration = duration
                 task.priority = priority
                 return True
         return False
 
-    def EditTask(self, name: str, duration: int, priority: int) -> bool:
-        return self.edit_task(name, duration, priority)
+    def EditTask(self, pet_name: str, name: str, duration: int, priority: int) -> bool:
+        return self.edit_task(pet_name, name, duration, priority)
 
-    def generate_schedule(self, duration: int) -> list[Task]:
+    def generate_schedule(self, duration: int, pet_name: str) -> list[Task]:
+        pet = self.find_pet(pet_name)
+        if not pet:
+            return []
         selected_tasks: list[Task] = []
         remaining_time = duration
 
-        for task in sorted(self.tasks, key=lambda item: item.priority, reverse=True):
+        for task in sorted(pet.tasks, key=lambda item: item.priority, reverse=True):
             if task.duration <= remaining_time:
                 selected_tasks.append(task)
                 remaining_time -= task.duration
 
         return selected_tasks
 
-    def GenerateSchedule(self, duration: int):
-        return self.generate_schedule(duration)
+    def GenerateSchedule(self, duration: int, pet_name: str) -> list[Task]:
+        return self.generate_schedule(duration, pet_name)
 
 
 import streamlit as st
@@ -184,7 +190,7 @@ st.subheader("Build Schedule")
 st.caption("This button should call your scheduling logic once you implement it.")
 
 if st.button("Generate schedule"):
-    selected = person.generate_schedule(duration)
+    selected = person.generate_schedule(duration, pet_name)
     st.warning(
         "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
     )
