@@ -40,15 +40,28 @@ class Person:
             return True
         return False
 
-    def add_task(self, duration: int, task_type: str, priority: int, name: str) -> bool:
+    def find_pet(self, name: str) -> Pet | None:
+        for pet in self.pets:
+            if pet.name == name:
+                return pet
+        return None
+
+    def FindPet(self, name: str) -> Pet | None:
+        return self.find_pet(name)
+
+    def add_task(self, duration: int, task_type: str, priority: int, name: str, pet_name: str) -> bool:
         if any(task.name == name for task in self.tasks):
             return False
+        
+        if not any(pet.name == pet_name for pet in self.pets):
+            return False
 
+        
         self.tasks.append(Task(duration=duration, task_type=task_type, priority=priority, name=name))
         return True
 
-    def AddTask(self, duration: int, type: str, priority: int, name: str) -> bool:
-        return self.add_task(duration, type, priority, name)
+    def AddTask(self, duration: int, type: str, priority: int, name: str, pet_name: str) -> bool:
+        return self.add_task(duration, type, priority, name, pet_name)
 
     def remove_task(self, name: str) -> bool:
         for task in self.tasks:
@@ -130,6 +143,9 @@ st.subheader("Quick Demo Inputs (UI only)")
 owner_name = st.text_input("Owner name", value="Jordan")
 pet_name = st.text_input("Pet name", value="Mochi")
 species = st.selectbox("Species", ["dog", "cat", "other"])
+
+person = Person(name = owner_name)
+person.add_pet(Pet(name=pet_name, pet_type=species))
 
 st.markdown("### Tasks")
 st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
