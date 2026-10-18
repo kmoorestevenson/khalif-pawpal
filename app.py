@@ -6,6 +6,7 @@ class Pet:
         self.name = name
         self.age = age
         self.pet_type = pet_type
+        self.tasks = []
 
 
 class Task:
@@ -52,11 +53,12 @@ class Person:
     def add_task(self, duration: int, task_type: str, priority: int, name: str, pet_name: str) -> bool:
         if any(task.name == name for task in self.tasks):
             return False
-        
-        if not any(pet.name == pet_name for pet in self.pets):
+
+        pet = self.find_pet(pet_name)
+        if not pet:
             return False
 
-        
+        pet.tasks.append(Task(duration=duration, task_type=task_type, priority=priority, name=name))
         self.tasks.append(Task(duration=duration, task_type=task_type, priority=priority, name=name))
         return True
 
@@ -152,6 +154,9 @@ st.caption("Add a few tasks. In your final version, these should feed into your 
 
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
+    person.tasks = []
+else:
+    person.tasks = [Task(duration=task["duration_minutes"], task_type=task["priority"], priority={"low": 1, "medium": 2, "high": 3}[task["priority"]], name=task["title"]) for task in st.session_state.tasks]
 
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -165,6 +170,7 @@ if st.button("Add task"):
     st.session_state.tasks.append(
         {"title": task_title, "duration_minutes": int(duration), "priority": priority}
     )
+    person.add_tasks(duration=int(duration), task_type=priority, priority={"low": 1, "medium": 2, "high": 3}[priority], name=task_title, pet_name=pet_name)
 
 if st.session_state.tasks:
     st.write("Current tasks:")
@@ -178,15 +184,11 @@ st.subheader("Build Schedule")
 st.caption("This button should call your scheduling logic once you implement it.")
 
 if st.button("Generate schedule"):
+    selected = person.generate_schedule(duration)
     st.warning(
         "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
     )
+    markdown_list = "\n".join([f"- {item.name} , {item.duration} minutes, {item.priority}" for item in selected])
     st.markdown(
-        """
-Suggested approach:
-1. Design your UML (draft).
-2. Create class stubs (no logic).
-3. Implement scheduling behavior.
-4. Connect your scheduler here and display results.
-"""
+        markdown_list
     )
