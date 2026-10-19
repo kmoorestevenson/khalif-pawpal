@@ -33,8 +33,6 @@ classDiagram
     +GetPetTasks(string pet_name) List~Task~
   }
 
-  Person --> "0..*" Pet : has pets
-  Person --> "0..*" Task : has tasks
-  Person --> "0..*" Scheduler : has scheduler
-
-  note for Person "AddTask checks this person's tasks by name.\nIf the name already exists, return false without adding.\nOtherwise, add the task and return true.\nRemoveTask removes the task matching the name.\nReturn true if removed, or false if not found.\nEditTask finds a task by name and updates its duration and priority.\nReturn true if updated, or false if not found."
+  Owner --> "0..*" Pet : has pets
+  Owner --> "0..*" Task : has tasks
+  Owner --> "0..*" Scheduler : has scheduler
