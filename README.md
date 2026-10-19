@@ -68,6 +68,14 @@ Sample test output:
 
 ```
 # Paste your pytest output here
+platform darwin -- Python 3.13.15, pytest-9.1.1, pluggy-1.6.0
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collected 6 items                                                              
+
+tests/test_pawpal.py ......                                              [100%]
+
+============================== 6 passed in 0.03s ===============================
 ```
 
 ## 📐 Smarter Scheduling
@@ -76,19 +84,17 @@ Sample test output:
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
+| Task sorting | ✅ | e.g., by priority, duration |
+| Filtering | ✅ | e.g., skip tasks if time runs out |
+| Conflict handling | ✅ | e.g., overlapping time slots |
 | Recurring tasks | | e.g., daily vs. weekly |
 
 ## 📸 Demo Walkthrough
 
 Describe your app in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
-
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+1. Add Owner's name, pet name, and pet type.
+2. Place task name , task date and time to the input.
+3. Press add task to potentially add the task to schedule.
+4. Set cut off date and time in the cut off date input.
+5. Press generate schedule to view the schedule.
