@@ -2,42 +2,65 @@ from __future__ import annotations
 
 
 class Pet:
-    def __init__(self, name: str = "", age: int = 0, pet_type: str = ""):
-        self.name = name
-        self.age = age
-        self.pet_type = pet_type
-        self.tasks = []
-
-
-class Task:
-    def __init__(self, duration: int = 0, task_type: str = "", priority: int = 0, name: str = ""):
-        self.duration = duration
-        self.type = task_type
-        self.priority = priority
-        self.name = name
-
-
-class Person:
     def __init__(
         self,
         name: str = "",
         age: int = 0,
-        email: str = "",
-        pets: list[Pet] | None = None,
+        petType: str = "",
+        pet_type: str | None = None,
+        tasks: list["Task"] | None = None,
     ):
+        if pet_type is not None and petType == "":
+            petType = pet_type
         self.name = name
         self.age = age
-        self.email = email
-        self.pets = pets if pets is not None else []
+        self.petType = petType
+        self.tasks = tasks if tasks is not None else []
 
-    def add_pet(self, pet: Pet) -> None:
+
+class Task:
+    def __init__(
+        self,
+        date: int,
+        type: str = "",
+        priority: int = 0,
+        name: str = "",
+    ):
+        self.date = date
+        self.type = type
+        self.priority = priority
+        self.name = name
+        self.completed = False
+
+    def mark_complete(self) -> bool:
+        self.completed = True
+        return True
+
+    def MarkComplete(self) -> bool:
+        return self.mark_complete()
+
+
+class Owner:
+    def __init__(self, name: str = "", age: int = 0, pets: list[Pet] | None = None):
+        self.name = name
+        self.age = age
+        self.pets = pets if pets is not None else []
+        self.scheduler = Scheduler(self)
+
+    def addPet(self, pet: Pet) -> None:
         self.pets.append(pet)
 
-    def remove_pet(self, pet: Pet) -> bool:
+    def add_pet(self, pet: Pet) -> None:
+        self.addPet(pet)
+
+    def removePet(self, pet: Pet) -> bool:
         if pet in self.pets:
             self.pets.remove(pet)
             return True
         return False
+
+    def remove_pet(self, pet: Pet) -> bool:
+        return self.removePet(pet)
 
     def find_pet(self, name: str) -> Pet | None:
         for pet in self.pets:
@@ -48,63 +71,119 @@ class Person:
     def FindPet(self, name: str) -> Pet | None:
         return self.find_pet(name)
 
-    def add_task(self, duration: int, task_type: str, priority: int, name: str, pet_name: str) -> bool:
-        if any(task.name == name for task in self.tasks):
-            return False
+    def add_task(self, pet_name: str, date: int, type: str, priority: int, name: str) -> bool:
+        return self.scheduler.AddTask(pet_name, date, type, priority, name)
 
-        pet = self.find_pet(pet_name)
-        if not pet:
-            return False
+    def add_tasks(self, pet_name: str, date: int, type: str, priority: int, name: str) -> bool:
+        return self.add_task(pet_name, date, type, priority, name)
 
-        pet.tasks.append(Task(duration=duration, task_type=task_type, priority=priority, name=name))
-        return True
-
-    def AddTask(self, duration: int, type: str, priority: int, name: str, pet_name: str) -> bool:
-        return self.add_task(duration, type, priority, name, pet_name)
+    def AddTask(self, pet_name: str, date: int, type: str, priority: int, name: str) -> bool:
+        return self.add_task(pet_name, date, type, priority, name)
 
     def remove_task(self, pet_name: str, name: str) -> bool:
-        pet = self.find_pet(pet_name)
-        if not pet:
+        return self.scheduler.RemoveTask(pet_name, name)
+
+    def RemoveTask(self, pet_name: str, name: str) -> bool:
+        return self.remove_task(pet_name, name)
+
+    def edit_task(self, pet_name: str, name: str, date: int, priority: int) -> bool:
+        return self.scheduler.EditTask(pet_name, name, date, priority)
+
+    def EditTask(self, pet_name: str, name: str, date: int, priority: int) -> bool:
+        return self.edit_task(pet_name, name, date, priority)
+
+    def mark_complete(self, pet_name: str, name: str) -> bool:
+        return self.scheduler.MarkComplete(pet_name, name)
+
+    def MarkComplete(self, pet_name: str, name: str) -> bool:
+        return self.mark_complete(pet_name, name)
+
+    def generate_schedule(self, cutoff_date: int, pet_name: str) -> list[Task]:
+        return self.scheduler.GenerateSchedule(cutoff_date, pet_name)
+
+    def GenerateSchedule(self, cutoff_date: int, pet_name: str) -> list[Task]:
+        return self.generate_schedule(cutoff_date, pet_name)
+
+
+class Scheduler:
+    def __init__(self, owner: Owner | None = None):
+        self.owner = owner
+
+    def AddTask(self, pet_name: str, date: int, type: str, priority: int, name: str) -> bool:
+        if self.owner is None:
             return False
+
+        pet = self.owner.find_pet(pet_name)
+        if pet is None:
+            return False
+
+        if any(task.name == name for task in pet.tasks):
+            return False
+
+        pet.tasks.append(Task(date=date, type=type, priority=priority, name=name))
+        return True
+
+    def RemoveTask(self, pet_name: str, name: str) -> bool:
+        if self.owner is None:
+            return False
+
+        pet = self.owner.find_pet(pet_name)
+        if pet is None:
+            return False
+
         for task in pet.tasks:
             if task.name == name:
                 pet.tasks.remove(task)
                 return True
         return False
 
-    def RemoveTask(self, pet_name: str, name: str) -> bool:
-        return self.remove_task(pet_name, name)
-
-    def edit_task(self, pet_name: str, name: str, duration: int, priority: int) -> bool:
-        pet = self.find_pet(pet_name)
-        if not pet:
+    def EditTask(self, pet_name: str, name: str, date: int, priority: int) -> bool:
+        if self.owner is None:
             return False
+
+        pet = self.owner.find_pet(pet_name)
+        if pet is None:
+            return False
+
         for task in pet.tasks:
             if task.name == name:
-                task.duration = duration
+                task.date = date
                 task.priority = priority
                 return True
         return False
 
-    def EditTask(self, pet_name: str, name: str, duration: int, priority: int) -> bool:
-        return self.edit_task(pet_name, name, duration, priority)
+    def MarkComplete(self, pet_name: str, name: str) -> bool:
+        if self.owner is None:
+            return False
 
-    def generate_schedule(self, duration: int, pet_name: str) -> list[Task]:
-        pet = self.find_pet(pet_name)
-        if not pet:
+        pet = self.owner.find_pet(pet_name)
+        if pet is None:
+            return False
+
+        for task in pet.tasks:
+            if task.name == name:
+                task.mark_complete()
+                return True
+        return False
+
+    def mark_complete(self, pet_name: str, name: str) -> bool:
+        return self.MarkComplete(pet_name, name)
+
+    def GenerateSchedule(self, cutoff_date: int, pet_name: str) -> list[Task]:
+        if self.owner is None:
             return []
-        selected_tasks: list[Task] = []
-        remaining_time = duration
 
-        for task in sorted(pet.tasks, key=lambda item: item.priority, reverse=True):
-            if task.duration <= remaining_time:
-                selected_tasks.append(task)
-                remaining_time -= task.duration
+        pet = self.owner.find_pet(pet_name)
+        if pet is None:
+            return []
 
-        return selected_tasks
+        pending_tasks = [
+            task for task in pet.tasks if not task.completed and task.date <= cutoff_date
+        ]
+        return sorted(pending_tasks, key=lambda task: (task.date, -task.priority))
 
-    def GenerateSchedule(self, duration: int, pet_name: str) -> list[Task]:
-        return self.generate_schedule(duration, pet_name)
+
+Person = Owner
 
 
 import streamlit as st
@@ -137,8 +216,8 @@ You will design and implement the scheduling logic and connect it to this Stream
 with st.expander("What you need to build", expanded=True):
     st.markdown(
         """
-At minimum, your system should:
-- Represent pet care tasks (what needs to happen, how long it takes, priority)
+    At minimum, your system should:
+    - Represent pet care tasks (what needs to happen, date, priority)
 - Represent the pet and the owner (basic info and preferences)
 - Build a plan/schedule for a day that chooses and orders tasks based on constraints
 - Explain the plan (why each task was chosen and when it happens)
@@ -160,23 +239,37 @@ st.caption("Add a few tasks. In your final version, these should feed into your 
 
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
-    person.tasks = []
-else:
-    person.tasks = [Task(duration=task["duration_minutes"], task_type=task["priority"], priority={"low": 1, "medium": 2, "high": 3}[task["priority"]], name=task["title"]) for task in st.session_state.tasks]
+
+person.find_pet(pet_name).tasks = [
+    Task(
+        date=task["date"],
+        type=task["priority"],
+        priority={"low": 1, "medium": 2, "high": 3}[task["priority"]],
+        name=task["title"],
+    )
+    for task in st.session_state.tasks
+]
 
 col1, col2, col3 = st.columns(3)
 with col1:
     task_title = st.text_input("Task title", value="Morning walk")
 with col2:
-    duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
+    task_date = st.date_input("Task date")
 with col3:
     priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
 
 if st.button("Add task"):
+    date_value = int(task_date.strftime("%Y%m%d"))
     st.session_state.tasks.append(
-        {"title": task_title, "duration_minutes": int(duration), "priority": priority}
+        {"title": task_title, "date": date_value, "priority": priority}
     )
-    person.add_tasks(duration=int(duration), task_type=priority, priority={"low": 1, "medium": 2, "high": 3}[priority], name=task_title, pet_name=pet_name)
+    person.add_task(
+        pet_name,
+        date_value,
+        priority,
+        {"low": 1, "medium": 2, "high": 3}[priority],
+        task_title,
+    )
 
 if st.session_state.tasks:
     st.write("Current tasks:")
@@ -190,11 +283,10 @@ st.subheader("Build Schedule")
 st.caption("This button should call your scheduling logic once you implement it.")
 
 if st.button("Generate schedule"):
-    selected = person.generate_schedule(duration, pet_name)
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
+    cutoff_date = int(task_date.strftime("%Y%m%d"))
+    selected = person.generate_schedule(cutoff_date, pet_name)
+    markdown_list = "\n".join(
+        f"- {item.date}: {item.name}, priority {item.priority}"
+        for item in selected
     )
-    markdown_list = "\n".join([f"- {item.name} , {item.duration} minutes, {item.priority}" for item in selected])
-    st.markdown(
-        markdown_list
-    )
+    st.markdown(markdown_list or "No pending tasks before this date.")
