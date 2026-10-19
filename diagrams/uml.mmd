@@ -4,8 +4,8 @@ classDiagram
     -age: int
     -pets: List~Pet~
     -scheduler: Scheduler
-    +addPet(Pet pet) void
-    +removePet(Pet pet) void
+    +addPet(Pet pet) bool
+    +removePet(Pet pet) bool
   }
 
   class Pet {

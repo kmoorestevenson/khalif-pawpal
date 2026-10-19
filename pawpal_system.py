@@ -44,11 +44,15 @@ class Owner:
         self.pets = pets if pets is not None else []
         self.scheduler = Scheduler(self)
 
-    def addPet(self, pet: Pet) -> None:
+    def addPet(self, pet: Pet) -> bool:
+        existing_pet = self.find_pet(pet.name)
+        if existing_pet is not None:
+            return False
         self.pets.append(pet)
+        return True
 
-    def add_pet(self, pet: Pet) -> None:
-        self.addPet(pet)
+    def add_pet(self, pet: Pet) -> bool:
+        return self.addPet(pet)
 
     def removePet(self, pet: Pet) -> bool:
         if pet in self.pets:
