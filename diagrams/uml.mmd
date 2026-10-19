@@ -29,6 +29,8 @@ classDiagram
     +AddTask(string pet_name, long date, string type, int priority, string name) bool
     +RemoveTask(string pet_name, string name) bool
     +EditTask(string pet_name, string name, long date, int priority) bool
+    +UpdateCompletedTask(List~Task~, long date) void
+    +GetPetTasks(string pet_name) List~Task~
   }
 
   Person --> "0..*" Pet : has pets

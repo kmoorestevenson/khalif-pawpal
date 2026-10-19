@@ -106,6 +106,24 @@ class Scheduler:
     def __init__(self, owner: Owner | None = None):
         self.owner = owner
 
+    def UpdateCompletedTask(self, tasks: list[Task], date: int) -> None:
+        for task in tasks:
+            if not task.completed and task.date < date:
+                task.mark_complete()
+
+    def update_completed_task(self, tasks: list[Task], date: int) -> None:
+        self.UpdateCompletedTask(tasks, date)
+
+    def GetPetTasks(self, pet_name: str) -> list[Task]:
+        if self.owner is None:
+            return []
+
+        pet = self.owner.find_pet(pet_name)
+        return pet.tasks if pet is not None else []
+
+    def get_pet_tasks(self, pet_name: str) -> list[Task]:
+        return self.GetPetTasks(pet_name)
+
     def AddTask(self, pet_name: str, date: int, type: str, priority: int, name: str) -> bool:
         if self.owner is None:
             return False
